@@ -1,0 +1,8 @@
+# OS artifacts
+.DS_Store
+._*
+
+# dev artifacts
+/node_modules/
+*.sublime-project
+*.sublime-workspace
