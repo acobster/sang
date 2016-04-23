@@ -10,14 +10,16 @@ angular.module('player', [])
 
 angular.module('sang', ['player'])
   .config(['$provide', function($provide) {
-    $provide.factory('Sang', ['AudioPlayer', function(AudioPlayer) {
-
-      // TODO resolve tracks/playlist
+    $provide.factory('Sang', ['AudioPlayer', '$http', function(AudioPlayer, $http) {
 
       return {
+        clientId: '',
+        resolve: function(playlistUrl) {
+          this.tracks = [{src: 'track one'}, {src: 'track two'}, {src: 'track three'}];
+        },
         player: AudioPlayer,
         currentTrack: {},
-        tracks: [{src: 'track one'}, {src: 'track two'}, {src: 'track three'}], // TODO
+        tracks: [], // TODO
         index: 0,
         playing: false,
         play: function(idx) {

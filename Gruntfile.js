@@ -11,7 +11,7 @@ module.exports = function(grunt) {
       },
       src: {
         files: ['src/**/*.js', 'spec/*.js'],
-        tasks: ['jasmine', 'jshint:src', 'concat', 'uglify'],
+        tasks: ['jshint:src', 'jasmine', 'concat', 'uglify'],
       }
     },
     jshint: {
@@ -57,6 +57,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  grunt.registerTask('default', ['jasmine', 'jshint:src', 'concat', 'uglify']);
+  grunt.registerTask('default', ['jshint:src', 'jasmine', 'concat', 'uglify']);
 };
 

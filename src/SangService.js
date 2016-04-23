@@ -10,14 +10,26 @@ angular.module('player', [])
 
 angular.module('sang', ['player'])
   .config(['$provide', function($provide) {
-    $provide.factory('Sang', ['AudioPlayer', function(AudioPlayer) {
-
-      // TODO resolve tracks/playlist
+    $provide.factory('Sang', ['AudioPlayer', '$http', function(AudioPlayer, $http) {
 
       return {
+        clientId: '',
+        resolve: function(playlistUrl) {
+          var self = this;
+          $http.get('https://api.soundcloud.com/resolve', {
+            params: {
+              client_id: this.clientId,
+              url: playlistUrl
+            }
+          }).then(function(response) {
+            window.console.log('response');
+            window.console.log(response);
+            self.tracks = response.tracks;
+          });
+        },
         player: AudioPlayer,
         currentTrack: {},
-        tracks: [{src: 'track one'}, {src: 'track two'}, {src: 'track three'}], // TODO
+        tracks: [],
         index: 0,
         playing: false,
         play: function(idx) {
