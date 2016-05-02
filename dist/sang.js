@@ -15,11 +15,32 @@ angular.module('sang', ['player'])
       return {
         clientId: '',
         resolve: function(playlistUrl) {
-          this.tracks = [{src: 'track one'}, {src: 'track two'}, {src: 'track three'}];
+          var self = this;
+          $http.get('https://api.soundcloud.com/resolve', {
+            params: {
+              client_id: this.clientId,
+              url: playlistUrl
+            }
+          }).then(function(response) {
+            self.tracks = self.mapTracks(response.data.tracks);
+          });
+        },
+        mapTracks: function(tracks) {
+          var self = this;
+          return tracks.map(function(track) {
+            var src = track.stream_url,
+                // massage query string
+                sep = src.indexOf('?') === -1 ? '?' : '&';
+
+            // resolve to fully streamable URL
+            track.src = src + sep + 'client_id=' + self.clientId;
+
+            return track;
+          });
         },
         player: AudioPlayer,
         currentTrack: {},
-        tracks: [], // TODO
+        tracks: [],
         index: 0,
         playing: false,
         play: function(idx) {

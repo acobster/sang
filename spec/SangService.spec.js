@@ -1,5 +1,19 @@
 describe('The Sang Service', function() {
-  var $http, $httpBackend, player, sang;
+  var $http, $httpBackend, player, sang, foo = 0;
+
+  function resolveTracks() {
+    $httpBackend.expectGET('https://api.soundcloud.com/resolve?client_id=1234&url=https:%2F%2Fsoundcloud.com%2Fjaspertmusic%2Fsets%2Fwebsite')
+      .respond({
+        tracks: [
+          {stream_url: '/track-one.mp3'},
+          {stream_url: '/track-two.mp3'},
+          {stream_url: '/track-three.mp3'}
+        ]
+      });
+    sang.clientId = '1234';
+    sang.resolve('https://soundcloud.com/jaspertmusic/sets/website');
+    $httpBackend.flush();
+  }
 
   beforeEach(function() {
     module('player');
@@ -16,25 +30,14 @@ describe('The Sang Service', function() {
     inject(function($injector) {
       $httpBackend = $injector.get('$httpBackend');
       sang = $injector.get('Sang', {'$http': $httpBackend});
-
-      $httpBackend.expectGET('https://api.soundcloud.com/resolve', {
-        params: {
-          client_id: '1234',
-          url: 'https://soundcloud.com/jaspertmusic/sets/website'
-        }
-      }).respond(function(method, url, data, headers, params) {
-        window.console.log(method);
-        window.console.log(url);
-        window.console.log(params);
-      });
-      sang.clientId = '1234';
-      sang.resolve('https://soundcloud.com/jaspertmusic/sets/website');
     });
+
+    resolveTracks();
   });
 
   describe('resolve', function() {
     it('should have resolved the tracklist', function() {
-      expect(sang.tracks[0].src).toBe('track one');
+      expect(sang.tracks[0].src).toBe('/track-one.mp3?client_id=1234');
     });
   });
 
@@ -51,14 +54,14 @@ describe('The Sang Service', function() {
       it('calls player.play() with the track src', function() {
         sang.play(1);
         expect(sang.playing).toBe(true);
-        expect(player.play).toHaveBeenCalledWith('track two');
+        expect(player.play).toHaveBeenCalledWith('/track-two.mp3?client_id=1234');
       });
 
       it('wraps around', function() {
         sang.play(3);
-        expect(player.play).toHaveBeenCalledWith('track one');
+        expect(player.play).toHaveBeenCalledWith('/track-one.mp3?client_id=1234');
         sang.play(4);
-        expect(player.play).toHaveBeenCalledWith('track two');
+        expect(player.play).toHaveBeenCalledWith('/track-two.mp3?client_id=1234');
       });
     });
   });
@@ -105,7 +108,7 @@ describe('The Sang Service', function() {
 
           sang.playPause();
           expect(sang.playing).toBe(true);
-          expect(player.play).toHaveBeenCalledWith('track two');
+          expect(player.play).toHaveBeenCalledWith('/track-two.mp3?client_id=1234');
         });
       });
     });
@@ -126,7 +129,7 @@ describe('The Sang Service', function() {
         sang.previous();
         expect(sang.index).toBe(1);
         expect(sang.playing).toBe(true);
-        expect(player.play).toHaveBeenCalledWith('track two');
+        expect(player.play).toHaveBeenCalledWith('/track-two.mp3?client_id=1234');
       });
     });
   });
@@ -146,7 +149,7 @@ describe('The Sang Service', function() {
         sang.next();
         expect(sang.index).toBe(2);
         expect(sang.playing).toBe(true);
-        expect(player.play).toHaveBeenCalledWith('track three');
+        expect(player.play).toHaveBeenCalledWith('/track-three.mp3?client_id=1234');
       });
     });
   });

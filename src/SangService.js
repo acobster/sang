@@ -22,9 +22,20 @@ angular.module('sang', ['player'])
               url: playlistUrl
             }
           }).then(function(response) {
-            window.console.log('response');
-            window.console.log(response);
-            self.tracks = response.tracks;
+            self.tracks = self.mapTracks(response.data.tracks);
+          });
+        },
+        mapTracks: function(tracks) {
+          var self = this;
+          return tracks.map(function(track) {
+            var src = track.stream_url,
+                // massage query string
+                sep = src.indexOf('?') === -1 ? '?' : '&';
+
+            // resolve to fully streamable URL
+            track.src = src + sep + 'client_id=' + self.clientId;
+
+            return track;
           });
         },
         player: AudioPlayer,
