@@ -1,5 +1,5 @@
 describe('The Sang Service', function() {
-  var $http, $httpBackend, player, sang, foo = 0;
+  var $http, $httpBackend, player, sang;
 
   function resolveTracks() {
     $httpBackend.expectGET('https://api.soundcloud.com/resolve?client_id=1234&url=https:%2F%2Fsoundcloud.com%2Fjaspertmusic%2Fsets%2Fwebsite')
@@ -20,7 +20,7 @@ describe('The Sang Service', function() {
     module('sang');
 
     player = jasmine.createSpyObj('player',
-      ['play', 'pause', 'playPause', 'previous', 'next', 'seek']);
+      ['play', 'pause', 'playPause', 'previous', 'next', 'seek', 'addEventListener']);
 
     // DI
     module(function($provide) {

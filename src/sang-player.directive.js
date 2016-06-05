@@ -5,10 +5,11 @@
     'SangService',
     function(SangService) {
       return {
-        restrict: 'A',
+        restrict: 'EA',
         scope: true,
         link: function(scope, _elem, attr) {
-          scope.sang = SangService;
+          window.console.log('link');
+          scope.sang = SangService.$new();
         }
       };
     }]);

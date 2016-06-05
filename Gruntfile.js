@@ -34,7 +34,7 @@ module.exports = function(grunt) {
     },
     concat: {
       dist: {
-        src: ['src/*.js'],
+        src: ['src/**/*.js'],
         dest: 'dist/sang.js'
       }
     },

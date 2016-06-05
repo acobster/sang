@@ -12,7 +12,7 @@ angular.module('sang', ['player'])
   .config(['$provide', function($provide) {
     $provide.factory('Sang', ['AudioPlayer', '$http', function(AudioPlayer, $http) {
 
-      return {
+      var sang = {
         clientId: '',
         resolve: function(playlistUrl) {
           var self = this;
@@ -40,6 +40,8 @@ angular.module('sang', ['player'])
         },
         player: AudioPlayer,
         currentTrack: {},
+        currentTime: 0,
+        duration: 0,
         tracks: [],
         index: 0,
         playing: false,
@@ -78,8 +80,13 @@ angular.module('sang', ['player'])
         seek: function(e) {
           this.player.seek(e);
         },
-        // TODO add audio event listeners
       };
+
+      sang.player.addEventListener('timeupdate', function() {
+        // if ()
+      });
+
+      return sang;
     }]);
   }]);
 })();
