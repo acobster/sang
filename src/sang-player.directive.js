@@ -1,15 +1,13 @@
 (function() {
 'use strict';
-
   angular.module('sang').directive('sangPlayer', [
-    'SangService',
+    'Sang',
     function(SangService) {
       return {
         restrict: 'EA',
-        scope: true,
+        scope: false,
         link: function(scope, _elem, attr) {
-          window.console.log('link');
-          scope.sang = SangService.$new();
+          scope.sang = SangService;
         }
       };
     }]);
