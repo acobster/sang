@@ -1,16 +1,17 @@
 (function(){
 'use strict';
 
-angular.module('player', [])
+angular.module('audio', [])
   .config(['$provide', function($provide) {
-    $provide.factory('AudioPlayer', function() {
-      return new Player();
+    $provide.factory('Audio', function() {
+      var audio = global.audio || document.createElement('audio');
+      return audio;
     });
   }]);
 
-angular.module('sang', ['player'])
+angular.module('sang', ['audio'])
   .config(['$provide', function($provide) {
-    $provide.factory('Sang', ['AudioPlayer', '$http', function(AudioPlayer, $http) {
+    $provide.factory('Sang', ['Audio', '$http', '$timeout', function(Audio, $http, $timeout) {
 
       var sang = {
         clientId: '',
@@ -30,15 +31,15 @@ angular.module('sang', ['player'])
           return tracks.map(function(track) {
             var src = track.stream_url,
                 // massage query string
-                sep = src.indexOf('?') === -1 ? '?' : '&';
+                separator = src.indexOf('?') === -1 ? '?' : '&';
 
             // resolve to fully streamable URL
-            track.src = src + sep + 'client_id=' + self.clientId;
+            track.src = src + separator + 'client_id=' + self.clientId;
 
             return track;
           });
         },
-        player: AudioPlayer,
+        audio: Audio,
         currentTrack: {},
         currentTime: 0,
         duration: 0,
@@ -46,20 +47,22 @@ angular.module('sang', ['player'])
         index: 0,
         playing: false,
         play: function(idx) {
-          if(typeof idx === 'number' && this.tracks.length) {
+          if (typeof idx === 'number' && this.tracks.length) {
+            // wrap tracklist at the end
             this.index = idx % this.tracks.length;
             this.currentTrack = this.tracks[this.index];
           }
 
           this.playing = true;
-          this.player.play(this.currentTrack.src);
+          this.audio.src = this.currentTrack.src;
+          this.audio.play();
         },
         pause: function() {
           this.playing = false;
-          this.player.pause();
+          this.audio.pause();
         },
         playPause: function(idx) {
-          if(this.playing) {
+          if (this.playing) {
             this.pause();
           } else {
             this.play(idx);
@@ -67,23 +70,30 @@ angular.module('sang', ['player'])
         },
         previous: function() {
           this.index--;
-          if(this.playing) {
+          if (this.playing) {
             this.play(this.index);
           }
         },
         next: function() {
           this.index++;
-          if(this.playing) {
+          if (this.playing) {
             this.play(this.index);
           }
         },
         seek: function(e) {
-          this.player.seek(e);
+          if (!this.audio.readyState) return false;
+          var percent = e.offsetX / e.target.offsetWidth || (e.layerX - e.target.offsetLeft) / e.target.offsetWidth;
+          var time = percent * this.audio.duration || 0;
+          this.audio.currentTime = time;
         },
       };
 
-      sang.player.addEventListener('timeupdate', function() {
+      sang.audio.addEventListener('timeupdate', function() {
         // if ()
+      });
+
+      sang.audio.addEventListener('ended', function() {
+        sang.next();
       });
 
       return sang;

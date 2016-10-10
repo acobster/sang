@@ -1,5 +1,5 @@
 describe('The Sang Service', function() {
-  var $http, $httpBackend, player, sang;
+  var $http, $httpBackend, audio, sang;
 
   function resolveTracks() {
     $httpBackend.expectGET('https://api.soundcloud.com/resolve?client_id=1234&url=https:%2F%2Fsoundcloud.com%2Fjaspertmusic%2Fsets%2Fwebsite')
@@ -16,15 +16,17 @@ describe('The Sang Service', function() {
   }
 
   beforeEach(function() {
-    module('player');
+    module('audio');
     module('sang');
 
-    player = jasmine.createSpyObj('player',
-      ['play', 'pause', 'playPause', 'previous', 'next', 'seek', 'addEventListener']);
+    audio = jasmine.createSpyObj('audio',
+      ['play', 'pause', 'addEventListener']);
+    audio.duration = 180;
+    audio.currentTime = 0;
 
     // DI
     module(function($provide) {
-      $provide.value('AudioPlayer', player);
+      $provide.value('Audio', audio);
     });
 
     inject(function($injector) {
@@ -35,6 +37,13 @@ describe('The Sang Service', function() {
     resolveTracks();
   });
 
+  describe('initialization', function() {
+    it('registers `ended` and `timeupdate` event handlers', function() {
+      expect(audio.addEventListener).toHaveBeenCalledWith('timeupdate', jasmine.any(Function));
+      expect(audio.addEventListener).toHaveBeenCalledWith('ended', jasmine.any(Function));
+    });
+  });
+
   describe('resolve', function() {
     it('should have resolved the tracklist', function() {
       expect(sang.tracks[0].src).toBe('/track-one.mp3?client_id=1234');
@@ -42,58 +51,61 @@ describe('The Sang Service', function() {
   });
 
   describe('play', function() {
-    it('calls player.play()', function() {
+    it('calls audio.play()', function() {
       expect(sang.playing).toBe(false);
 
       sang.play();
       expect(sang.playing).toBe(true);
-      expect(player.play).toHaveBeenCalled();
+      expect(audio.play).toHaveBeenCalled();
     });
 
     describe('with idx argument', function() {
-      it('calls player.play() with the track src', function() {
+      it('calls audio.play() with the track src', function() {
         sang.play(1);
         expect(sang.playing).toBe(true);
-        expect(player.play).toHaveBeenCalledWith('/track-two.mp3?client_id=1234');
+        expect(audio.src).toBe('/track-two.mp3?client_id=1234');
+        expect(audio.play).toHaveBeenCalled();
       });
 
       it('wraps around', function() {
         sang.play(3);
-        expect(player.play).toHaveBeenCalledWith('/track-one.mp3?client_id=1234');
+        expect(audio.src).toBe('/track-one.mp3?client_id=1234');
+        expect(audio.play).toHaveBeenCalled();
         sang.play(4);
-        expect(player.play).toHaveBeenCalledWith('/track-two.mp3?client_id=1234');
+        expect(audio.src).toBe('/track-two.mp3?client_id=1234');
+        expect(audio.play).toHaveBeenCalled();
       });
     });
   });
 
   describe('pause', function() {
-    it('calls player.pause()', function() {
+    it('calls audio.pause()', function() {
       sang.playing = true;
 
       sang.pause();
       expect(sang.playing).toBe(false);
-      expect(player.pause).toHaveBeenCalled();
+      expect(audio.pause).toHaveBeenCalled();
     });
   });
 
   describe('playPause', function() {
     describe('when already playing', function() {
-      it('calls player.pause()', function() {
+      it('calls audio.pause()', function() {
         sang.playing = true;
 
         sang.playPause();
         expect(sang.playing).toBe(false);
-        expect(player.pause).toHaveBeenCalled();
+        expect(audio.pause).toHaveBeenCalled();
       });
     });
 
     describe('when paused', function() {
-      it('calls player.play()', function() {
+      it('calls audio.play()', function() {
         expect(sang.playing).toBe(false)
 
         sang.playPause();
         expect(sang.playing).toBe(true);
-        expect(player.play).toHaveBeenCalled();
+        expect(audio.play).toHaveBeenCalled();
       });
 
       describe('when paused on track two', function() {
@@ -103,12 +115,13 @@ describe('The Sang Service', function() {
           sang.currentTrack = sang.tracks[1];
         });
 
-        it('calls player.play() with track two', function() {
+        it('calls audio.play() with track two', function() {
           expect(sang.playing).toBe(false);
 
           sang.playPause();
           expect(sang.playing).toBe(true);
-          expect(player.play).toHaveBeenCalledWith('/track-two.mp3?client_id=1234');
+          expect(audio.src).toBe('/track-two.mp3?client_id=1234');
+          expect(audio.play).toHaveBeenCalled();
         });
       });
     });
@@ -129,7 +142,8 @@ describe('The Sang Service', function() {
         sang.previous();
         expect(sang.index).toBe(1);
         expect(sang.playing).toBe(true);
-        expect(player.play).toHaveBeenCalledWith('/track-two.mp3?client_id=1234');
+        expect(audio.src).toBe('/track-two.mp3?client_id=1234');
+        expect(audio.play).toHaveBeenCalled();
       });
     });
   });
@@ -149,16 +163,36 @@ describe('The Sang Service', function() {
         sang.next();
         expect(sang.index).toBe(2);
         expect(sang.playing).toBe(true);
-        expect(player.play).toHaveBeenCalledWith('/track-three.mp3?client_id=1234');
+        expect(audio.src).toBe('/track-three.mp3?client_id=1234');
+        expect(audio.play).toHaveBeenCalled();
       });
     });
   });
 
   describe('seek', function() {
-    it('passes the seek Event to player.seek()', function() {
-      var e = {event: 'object'};
-      sang.seek(e);
-      expect(player.seek).toHaveBeenCalledWith(e);
+    it('sets the currentTime based on X-value of click event', function() {
+      audio.readyState = 'ready';
+      var target = { offsetWidth: 100 };
+
+      // test a reasonable set of offsetX values against
+      // their expected resulting audio.currentTime values
+      var offsetsAndTimes = [
+        { offsetX: 25, currentTime: 45 },
+        { offsetX: 0, currentTime: 0 },
+        { offsetX: 61, currentTime: 109.8 },
+        { offsetX: 100, currentTime: 180 },
+      ];
+
+      offsetsAndTimes.forEach(function(v) {
+        // simulate a click event
+        sang.seek({
+          type: 'click',
+          offsetX: v.offsetX,
+          target: target
+        });
+        // check we got our maths right
+        expect(audio.currentTime).toBe(v.currentTime);
+      });
     });
   });
 });
