@@ -56,6 +56,9 @@ angular.module('sang', ['audio'])
           this.playing = true;
           this.audio.src = this.currentTrack.src;
           this.audio.play();
+
+          this.duration = this.audio.duration;
+          this.currentTime = this.audio.currentTime;
         },
         pause: function() {
           this.playing = false;
@@ -88,8 +91,8 @@ angular.module('sang', ['audio'])
         },
       };
 
-      sang.audio.addEventListener('timeupdate', function() {
-        // if ()
+      sang.audio.addEventListener('timeupdate', function(event) {
+        sang.currentTime = event.target.currentTime;
       });
 
       sang.audio.addEventListener('ended', function() {
