@@ -4,7 +4,7 @@
 angular.module('audio', [])
   .config(['$provide', function($provide) {
     $provide.factory('Audio', function() {
-      var audio = global.audio || document.createElement('audio');
+      var audio = window.audio || document.createElement('audio');
       return audio;
     });
   }]);
@@ -24,6 +24,7 @@ angular.module('sang', ['audio'])
             }
           }).then(function(response) {
             self.tracks = self.mapTracks(response.data.tracks);
+            self.currentTrack = self.tracks[0];
           });
         },
         mapTracks: function(tracks) {
@@ -56,6 +57,7 @@ angular.module('sang', ['audio'])
 
           this.playing = true;
           this.audio.src = this.currentTrack.src;
+          window.console.log('playing: '+this.audio.src);
           this.audio.play();
 
           this.duration = this.audio.duration;

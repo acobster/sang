@@ -23,13 +23,15 @@ module.exports = function(grunt) {
       }
     },
     jasmine: {
-      src: 'src/**/*.js',
-      options: {
-        specs: 'spec/*.js',
-        vendor: [
-          'node_modules/angular/angular.js',
-          'node_modules/angular-mocks/angular-mocks.js',
-        ]
+      lib: {
+        src: 'src/**/*.js',
+        options: {
+          specs: 'spec/*.js',
+          vendor: [
+            'node_modules/angular/angular.js',
+            'node_modules/angular-mocks/angular-mocks.js',
+          ]
+        }
       }
     },
     concat: {
@@ -68,6 +70,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-connect');
 
-  grunt.registerTask('default', ['jshint:src', 'jasmine', 'concat', 'uglify']);
+  grunt.registerTask('default', ['jshint:src', 'concat', 'uglify']);
 };
 

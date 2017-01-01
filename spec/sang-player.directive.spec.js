@@ -1,17 +1,21 @@
 describe('The Sang Directive', function() {
-  var compile, scope, element, sang;
+  var compile, scope, element, sang,
+      playlistUrl = 'https://soundcloud.com/jaspertmusic/sets/website';
 
   beforeEach(function() {
     module('sang');
 
     sang = jasmine.createSpyObj('sang',
-      ['play', 'pause', 'playPause', 'previous', 'next', 'seek']);
+      ['play', 'pause', 'playPause', 'previous', 'next', 'seek', 'resolve']);
 
     module(function($provide) {
       $provide.value('Sang', sang);
     });
 
-    injectDirectiveHtml('<div sang-player client-id="asdf1234"><span ng-click="sang.playPause()"></span></div>');
+    injectDirectiveHtml('<div sang-player'
+      +' client-id="asdf1234"'
+      +' url="'+playlistUrl+'">'
+      + '<span ng-click="sang.playPause()"></span></div>');
   });
 
   function injectDirectiveHtml(directiveHtml) {
@@ -34,8 +38,10 @@ describe('The Sang Directive', function() {
     expect(typeof scope.sang).toBe('object');
   });
 
-  it('initializes the Sang service with the clientId', function() {
+  it('resolves the SoundCloud URL attr using the clientId attr', function() {
     expect(scope.sang.clientId).toBe('asdf1234');
+    expect(scope.sang.url).toBe(playlistUrl);
+    expect(scope.sang.resolve).toHaveBeenCalledWith(playlistUrl);
   });
 
   it('exposes sang methods on the scope', function() {

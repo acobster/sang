@@ -4,7 +4,7 @@
 angular.module('audio', [])
   .config(['$provide', function($provide) {
     $provide.factory('Audio', function() {
-      var audio = global.audio || document.createElement('audio');
+      var audio = window.audio || document.createElement('audio');
       return audio;
     });
   }]);
@@ -24,6 +24,7 @@ angular.module('sang', ['audio'])
             }
           }).then(function(response) {
             self.tracks = self.mapTracks(response.data.tracks);
+            self.currentTrack = self.tracks[0];
           });
         },
         mapTracks: function(tracks) {
@@ -56,6 +57,7 @@ angular.module('sang', ['audio'])
 
           this.playing = true;
           this.audio.src = this.currentTrack.src;
+          window.console.log('playing: '+this.audio.src);
           this.audio.play();
 
           this.duration = this.audio.duration;
@@ -107,16 +109,25 @@ angular.module('sang', ['audio'])
 
 (function() {
 'use strict';
-  angular.module('sang').directive('sangPlayer', [
-    'Sang',
-    function(SangService) {
-      return {
-        restrict: 'EA',
-        scope: false,
-        link: function(scope, _elem, attr) {
-          scope.sang = SangService;
+
+angular.module('sang').directive('sangPlayer', [
+  'Sang',
+  function(Sang) {
+    return {
+      restrict: 'EA',
+      scope: false,
+      link: function(scope, _elem, attr) {
+        var sang = Sang;
+        sang.clientId = attr.clientId;
+        sang.url = attr.url;
+
+        if(attr.clientId && attr.url) {
+          sang.resolve(attr.url);
         }
-      };
-    }]);
+
+        scope.sang = sang;
+      }
+    };
+  }]);
 
 })();
