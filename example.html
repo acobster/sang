@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sang Example</title>
+  <script src="/node_modules/angular/angular.js"></script>
+  <script src="/dist/sang.js"></script>
+</head>
+<body>
+  <main>
+    <div sang-player class="music-player">
+      <button type="button" ng-click="sang.previous()">Previous</button>
+      <button type="button" ng-click="sang.playPause()">Play/Pause</button>
+      <button type="button" ng-click="sang.next()">Next</button>
+      <span class="playback-timeline" ng-click="sang.seek($event)"></span>
+    </div>
+
+    <div sang-player class="other-music-player">
+      <button type="button" ng-click="sang.previous()">Previous</button>
+      <button type="button" ng-click="sang.playPause()">Play/Pause</button>
+      <button type="button" ng-click="sang.next()">Next</button>
+      <span class="playback-timeline" ng-click="sang.seek($event)"></span>
+    </div>
+  </main>
+  <style>
+  main {
+    width: 50em;
+    max-width: 90%;
+    margin: 1em auto;
+  }
+  </style>
+</body>
+</html>

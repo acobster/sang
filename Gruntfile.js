@@ -47,6 +47,16 @@ module.exports = function(grunt) {
           'dist/sang.min.js': ['dist/sang.js']
         }
       }
+    },
+    connect: {
+      example: {
+        options: {
+          base: '.',
+          keepalive: true,
+          port: 8888,
+          useAvailablePort: true
+        }
+      }
     }
   });
 
@@ -56,6 +66,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-connect');
 
   grunt.registerTask('default', ['jshint:src', 'jasmine', 'concat', 'uglify']);
 };

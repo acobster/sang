@@ -11,7 +11,7 @@ describe('The Sang Directive', function() {
       $provide.value('Sang', sang);
     });
 
-    injectDirectiveHtml('<div sang-player><span ng-click="sang.playPause()"></span></div>');
+    injectDirectiveHtml('<div sang-player client-id="asdf1234"><span ng-click="sang.playPause()"></span></div>');
   });
 
   function injectDirectiveHtml(directiveHtml) {
@@ -32,6 +32,10 @@ describe('The Sang Directive', function() {
   it('creates a scope.sang object', function() {
     expect(scope.sang).toBeDefined();
     expect(typeof scope.sang).toBe('object');
+  });
+
+  it('initializes the Sang service with the clientId', function() {
+    expect(scope.sang.clientId).toBe('asdf1234');
   });
 
   it('exposes sang methods on the scope', function() {

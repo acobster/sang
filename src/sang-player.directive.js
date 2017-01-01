@@ -8,6 +8,7 @@
         scope: false,
         link: function(scope, _elem, attr) {
           scope.sang = SangService;
+          window.console.log(attr);
         }
       };
     }]);

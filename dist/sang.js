@@ -40,12 +40,13 @@ angular.module('sang', ['audio'])
           });
         },
         audio: Audio,
+        tracks: [],
         currentTrack: {},
         currentTime: 0,
         duration: 0,
-        tracks: [],
         index: 0,
         playing: false,
+
         play: function(idx) {
           if (typeof idx === 'number' && this.tracks.length) {
             // wrap tracklist at the end
