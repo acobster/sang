@@ -17,7 +17,6 @@ angular.module('sang').directive('sangPlayer', [
         }
 
         scope.$on('timeupdate', function(event, currentTime) {
-          console.log(currentTime);
           scope.$apply();
         });
 

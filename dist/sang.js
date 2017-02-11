@@ -52,7 +52,9 @@ angular.module('sang', ['audio'])
         play: function(idx) {
           if (typeof idx === 'number' && this.tracks.length) {
             // wrap tracklist at the end
-            this.index = idx % this.tracks.length;
+            this.index = idx < 0 ?
+              this.tracks.length - 1 :
+              idx % this.tracks.length;
             this.currentTrack = this.tracks[this.index];
           }
 
@@ -65,8 +67,12 @@ angular.module('sang', ['audio'])
           }
           this.audio.play();
 
-          this.duration = this.audio.duration;
-          this.currentTime = this.audio.currentTime;
+          // get metadata when audio is ready
+          var self = this;
+          this.audio.addEventListener('loadedmetadata', function(event) {
+            self.duration = event.target.duration;
+            self.currentTime = event.target.currentTime;
+          });
         },
         pause: function() {
           this.playing = false;
@@ -80,9 +86,18 @@ angular.module('sang', ['audio'])
           }
         },
         previous: function() {
-          this.index--;
-          if (this.playing) {
-            this.play(this.index);
+          if (this.currentTime > 3.0) {
+            // user has had a few seconds to skip back;
+            // they probably want to restart the current track
+            this.currentTime = 0;
+            this.audio.src = this.currentTrack.src;
+            this.play();
+          } else {
+            // move to previous track
+            this.index--;
+            if (this.playing) {
+              this.play(this.index);
+            }
           }
         },
         next: function() {
@@ -96,7 +111,7 @@ angular.module('sang', ['audio'])
           var percent = e.offsetX / e.target.offsetWidth || (e.layerX - e.target.offsetLeft) / e.target.offsetWidth;
           var time = percent * this.audio.duration || 0;
           this.audio.currentTime = time;
-        },
+        }
       };
 
       sang.audio.addEventListener('timeupdate', function(event) {
@@ -132,7 +147,6 @@ angular.module('sang').directive('sangPlayer', [
         }
 
         scope.$on('timeupdate', function(event, currentTime) {
-          console.log(currentTime);
           scope.$apply();
         });
 

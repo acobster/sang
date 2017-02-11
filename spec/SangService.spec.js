@@ -1,3 +1,5 @@
+var HTMLMediaElement = { HAVE_METADATA: 1, readyState: 4 }
+
 describe('The Sang Service', function() {
   var $http, $httpBackend, audio, sang;
 
