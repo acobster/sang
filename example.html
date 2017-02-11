@@ -7,25 +7,100 @@
 </head>
 <body>
   <main>
-    <div sang-player class="music-player" client-id="4b6082d8e2d57724254dad59c6e1fe56" url="https://soundcloud.com/jaspertmusic/sets/website">
-      <button type="button" ng-click="sang.previous()">Previous</button>
-      <button type="button" ng-click="sang.playPause()">Play/Pause</button>
-      <button type="button" ng-click="sang.next()">Next</button>
-      <span class="playback-timeline" ng-click="sang.seek($event)"></span>
-    </div>
+    <div sang-player client-id="4b6082d8e2d57724254dad59c6e1fe56" url="https://soundcloud.com/rowancarrick/sets/mother-tongue-live-recordings">
+      <div class="music-player">
+        <button type="button" ng-click="sang.previous()" class="previous">Previous</button>
+        <button type="button" ng-click="sang.playPause()" ng-class="sang.playing ? 'pause' : 'play'">Play/Pause</button>
+        <button type="button" ng-click="sang.next()" class="next">Next</button>
+        <span class="playback-timeline" ng-click="sang.seek($event)"></span>
+      </div>
 
-    <div sang-player class="other-music-player">
-      <button type="button" ng-click="sang.previous()">Previous</button>
-      <button type="button" ng-click="sang.playPause()">Play/Pause</button>
-      <button type="button" ng-click="sang.next()">Next</button>
-      <span class="playback-timeline" ng-click="sang.seek($event)"></span>
+      <fieldset>
+        <legend>sang instance properties</legend>
+
+        <dl>
+          <dt>currentTrack.src:</dt><dd>{{sang.currentTrack.src}}</dd>
+          <dt>currentTime:</dt><dd>{{sang.currentTime}}</dd>
+          <dt>playing:</dt><dd>{{sang.playing}}</dd>
+          <dt>duration:</dt><dd>{{sang.duration}}</dd>
+          <dt>index:</dt><dd>{{sang.index}}</dd>
+        </dl>
+      </fieldset>
+
     </div>
   </main>
   <style>
   main {
-    width: 50em;
+    width: 80em;
     max-width: 90%;
     margin: 1em auto;
+  }
+
+  .music-player {
+    width: 150px;
+    margin: auto;
+  }
+
+  button {
+    position: relative;
+    text-indent: 999em;
+    width: 2em;
+    height: 2em;
+    padding: 0;
+    margin: 1em;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+  }
+  button:before, button:after {
+    display: inline-block;
+    position: absolute;
+    content: "";
+    color: orange;
+    left: 0;
+    top: 0;
+  }
+
+  button.previous:before {
+    border-width: 1em 2em 1em 0;
+    border-color: transparent orange transparent transparent;
+    border-style: solid;
+    left: 0;
+  }
+  button.previous:after {
+    width: 100%;
+    height: 100%;
+    border-left: 5px solid orange;
+  }
+
+  button.play:after {
+    border-width: 1em 0 1em 2em;
+    border-color: transparent transparent transparent orange;
+    border-style: solid;
+  }
+  button.pause:before, button.pause:after {
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0.5em 0 0 0 orange;
+  }
+  button.pause:after {
+    left: 1em;
+  }
+
+  button.next:before {
+    border-width: 1em 0 1em 2em;
+    border-color: transparent transparent transparent orange;
+    border-style: solid;
+    left: 3px;
+  }
+  button.next:after {
+    width: 100%;
+    height: 100%;
+    border-right: 5px solid orange;
+  }
+
+  dt, dd {
+    font-family: Courier, monospace;
   }
   </style>
 </body>
