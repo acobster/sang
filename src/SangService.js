@@ -56,8 +56,12 @@ angular.module('sang', ['audio'])
           }
 
           this.playing = true;
-          this.audio.src = this.currentTrack.src;
-          window.console.log('playing: '+this.audio.src);
+
+          // set audio source only if it differs from the current track's,
+          // to avoid resetting currentTime
+          if (this.audio.src !== this.currentTrack.src) {
+            this.audio.src = this.currentTrack.src;
+          }
           this.audio.play();
 
           this.duration = this.audio.duration;
