@@ -16,6 +16,11 @@ angular.module('sang').directive('sangPlayer', [
           sang.resolve(attr.url);
         }
 
+        scope.$on('timeupdate', function(event, currentTime) {
+          console.log(currentTime);
+          scope.$apply();
+        });
+
         scope.sang = sang;
       }
     };

@@ -11,7 +11,7 @@ angular.module('audio', [])
 
 angular.module('sang', ['audio'])
   .config(['$provide', function($provide) {
-    $provide.factory('Sang', ['Audio', '$http', '$timeout', function(Audio, $http, $timeout) {
+    $provide.factory('Sang', ['Audio', '$http', '$timeout', '$rootScope', function(Audio, $http, $timeout, $rootScope) {
 
       var sang = {
         clientId: '',
@@ -25,6 +25,7 @@ angular.module('sang', ['audio'])
           }).then(function(response) {
             self.tracks = self.mapTracks(response.data.tracks);
             self.currentTrack = self.tracks[0];
+            $rootScope.$broadcast('resolved');
           });
         },
         mapTracks: function(tracks) {
@@ -49,7 +50,6 @@ angular.module('sang', ['audio'])
         playing: false,
 
         play: function(idx) {
-          console.log('idx', idx);
           if (typeof idx === 'number' && this.tracks.length) {
             // wrap tracklist at the end
             this.index = idx % this.tracks.length;
@@ -101,6 +101,7 @@ angular.module('sang', ['audio'])
 
       sang.audio.addEventListener('timeupdate', function(event) {
         sang.currentTime = event.target.currentTime;
+        $rootScope.$broadcast('timeupdate', sang.currentTime);
       });
 
       sang.audio.addEventListener('ended', function() {
@@ -129,6 +130,11 @@ angular.module('sang').directive('sangPlayer', [
         if(attr.clientId && attr.url) {
           sang.resolve(attr.url);
         }
+
+        scope.$on('timeupdate', function(event, currentTime) {
+          console.log(currentTime);
+          scope.$apply();
+        });
 
         scope.sang = sang;
       }
